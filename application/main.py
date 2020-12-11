@@ -6,7 +6,7 @@ cassandra_ip = "20.73.39.50"
 keyspace_name = "test";
 
 
-cluster = Cluster(contact_points=[cassandra_ip],protocol_version=2, auth_provider=PlainTextAuthProvider)
+cluster = Cluster([cassandra_ip], auth_provider=ap)
 
 def add_user():
     session = cluster.connect(keyspace_name)
@@ -27,9 +27,9 @@ def main_cycle():
     choice = input("Give input ")
     if choice == "setup":
         setup()
-    if choice == "add user":
+    elif choice == "add user":
         add_user()
-    if choice == "get users":
+    elif choice == "get users":
         get_users()
     else:
         print("invalid command")
@@ -38,7 +38,7 @@ def main_cycle():
 
 def setup():
     session = cluster.connect()
-    session.execute("DROP KEYSPACE %s;" % keyspace_name)
+    session.execute("DROP KEYSPACE IF EXISTS %s;" % keyspace_name)
     session.execute("""
         CREATE KEYSPACE %s
         WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '2' }
