@@ -18,24 +18,32 @@ test_file_location = 'test.dat'
 cluster = Cluster()
 
 
-def add_file(file_name,file,session):
+def insert_file(file_name, file, session):
     strCQL = "INSERT INTO file (file_name,file) VALUES (?,?)"
     pStatement = session.prepare(strCQL)
     session.execute(pStatement, [file_name, file])
 
+def add_file(file_name, file_location):
+    session = cluster.connect(keyspace_name)
+    insert_file(file_name, open_file(file_location), session)
 
 def check_file_saved_correctly(file_name, file,session):
-    strCQL ="SELECT file FROM file WHERE file_name=?;"
+    retrieved_file = get_file(file_name, session)
+    return retrieved_file == file;
+
+
+def get_file(file_name, session):
+    strCQL = "SELECT file FROM file WHERE file_name=?;"
     pStatement = session.prepare(strCQL)
-    retrieved_file = session.execute(pStatement, [file_name]).one()
-    return retrieved_file[0] == file;
+    rows = session.execute(pStatement, [file_name]).one()
+    return rows[0]
 
 
 def run_test(file_name):
-    file = get_test_file()
+    file = open_file(test_file_location)
     session = cluster.connect(keyspace_name)
     start = time.perf_counter()
-    add_file(file_name,file,session);
+    insert_file(file_name, file, session);
     if(check_file_saved_correctly(file_name,file,session)):
         stop = time.perf_counter()
         time_taken = stop - start
@@ -43,8 +51,8 @@ def run_test(file_name):
     else:
         print("TEST failed")
 
-def get_test_file():
-    file = open(test_file_location, 'rb')  # open binary file in read mode
+def open_file(file_location):
+    file = open(file_location, 'rb')  # open binary file in read mode
     file_read = file.read()
     file_64_encode = base64.encodebytes(file_read)
     return file_64_encode
@@ -61,13 +69,29 @@ def setup():
     session.execute("""CREATE TABLE file(
                        file_name text PRIMARY KEY,
                        file blob)""")
-    print("setup completed you can now test by running: python3.8 CassandraTester.py test (amount_of_processes)")
+    print("setup completed you can now test by running: python3.8 CassandraFileSystem.py test (amount_of_processes)")
 
 
 def run_test_session(amount_of_processes):
     for i in range(amount_of_processes):
         Process(target=run_test, args=(str(i),)).start()
 
+
+def list_files():
+    session = cluster.connect(keyspace_name)
+    rows = session.execute("SELECT file_name FROM file")
+    print("Files available for download:")
+    for row in rows:
+        print(row[0])
+
+
+def save_file(file_name, location_to_be_saved):
+    session = cluster.connect(keyspace_name)
+    file = get_file(file_name, session)
+    decoded_file = base64.decodebytes(file)
+    f = open(location_to_be_saved, "wb")
+    f.write(decoded_file)
+    print("Written file at: " + location_to_be_saved)
 
 def main():
     print("Welcome to the DPS assignment 2 application")
@@ -77,6 +101,12 @@ def main():
         setup()
     elif command == "test":
         run_test_session(int(sys.argv[2]))
+    elif command == "add_file":
+        add_file(sys.argv[2], sys.argv[3])
+    elif command == "list_files":
+        list_files()
+    elif command == "get_file":
+        save_file(sys.argv[2], sys.argv[3])
     else:
         print("Wrong input")
 
