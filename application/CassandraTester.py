@@ -11,7 +11,10 @@ cassandra_ip = "20.76.16.81"
 keyspace_name = "test"
 test_file_location = 'test.dat'
 
+# cluster for remote host
 # cluster = Cluster([cassandra_ip], auth_provider=ap)
+
+# cluster for localhost
 cluster = Cluster()
 
 
@@ -68,6 +71,7 @@ def run_test_session(amount_of_processes):
 
 def main():
     print("Welcome to the DPS assignment 2 application")
+    print("Note for a fresh test please run setup first")
     command = sys.argv[1]
     if command == "setup":
         setup()
