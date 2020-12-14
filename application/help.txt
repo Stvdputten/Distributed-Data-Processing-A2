@@ -1,0 +1,17 @@
+The following commands are supported:
+setup:
+    Will initialise the DB and create the table NOTE this will delete all data
+test:
+    Used to run test accepts two arguments: first the file which will be uploaded second the amount of processes will be run in parallel
+    Example:
+    python3.8 CassandraFileSystem.py test Image.png 3
+add_file:
+    Will add a file to the DB accepts two arguments: First the file name to be used in the DB second the path of the file
+    Example:
+    python3.8 CassandraFileSystem.py add_file test_image Image.png
+list_files:
+    Will list all the files avaiable for download.
+get_file:
+    Will download a file from the DB accepts two arguments: First the name of the file which needs to be downloaded Second the location where the file needs to be saved.
+    Example:
+    python3.8 CassandraFileSystem.py get_file test_image Image.png

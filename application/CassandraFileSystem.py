@@ -9,7 +9,6 @@ from cassandra.cluster import Cluster
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
 cassandra_ip = "20.76.16.81"
 keyspace_name = "test"
-test_file_location = 'test.dat'
 
 # cluster for remote host
 # cluster = Cluster([cassandra_ip], auth_provider=ap)
@@ -39,15 +38,15 @@ def get_file(file_name, session):
     return rows[0]
 
 
-def run_test(file_name):
-    file = open_file(test_file_location)
+def run_test(file_name,process_name,):
+    file = open_file(file_name)
     session = cluster.connect(keyspace_name)
     start = time.perf_counter()
     insert_file(file_name, file, session);
-    if(check_file_saved_correctly(file_name,file,session)):
+    if(check_file_saved_correctly(file_name, file, session)):
         stop = time.perf_counter()
         time_taken = stop - start
-        print(f"Process {file_name} succesful taken : {time_taken:0.4f} seconds")
+        print(f"Process {process_name} succesful taken : {time_taken:0.4f} seconds")
     else:
         print("TEST failed")
 
@@ -72,9 +71,9 @@ def setup():
     print("setup completed you can now test by running: python3.8 CassandraFileSystem.py test (amount_of_processes)")
 
 
-def run_test_session(amount_of_processes):
+def run_test_session(file_name, amount_of_processes):
     for i in range(amount_of_processes):
-        Process(target=run_test, args=(str(i),)).start()
+        Process(target=run_test, args=(file_name, str(i))).start()
 
 
 def list_files():
@@ -93,22 +92,33 @@ def save_file(file_name, location_to_be_saved):
     f.write(decoded_file)
     print("Written file at: " + location_to_be_saved)
 
+
+def print_help():
+    file = open("help.txt")
+    lines = file.readlines()
+    for line in lines:
+        print(line)
+
+
 def main():
     print("Welcome to the DPS assignment 2 application")
-    print("Note for a fresh test please run setup first")
     command = sys.argv[1]
     if command == "setup":
         setup()
     elif command == "test":
-        run_test_session(int(sys.argv[2]))
+        run_test_session(sys.argv[2], int(sys.argv[3]))
     elif command == "add_file":
         add_file(sys.argv[2], sys.argv[3])
     elif command == "list_files":
         list_files()
     elif command == "get_file":
         save_file(sys.argv[2], sys.argv[3])
+    elif command == "help":
+        print_help()
     else:
         print("Wrong input")
+        print("For help execute:")
+        print("python3.8 CassandraFileSystem.py help")
 
 
 if __name__ == '__main__':
