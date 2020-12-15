@@ -22,9 +22,11 @@ def insert_file(file_name, file, session):
     pStatement = session.prepare(strCQL)
     session.execute(pStatement, [file_name, file])
 
+
 def add_file(file_name, file_location):
     session = cluster.connect(keyspace_name)
     insert_file(file_name, open_file(file_location), session)
+
 
 def check_file_saved_correctly(file_name, file,session):
     retrieved_file = get_file(file_name, session)
@@ -51,7 +53,7 @@ def run_test(file_name,process_name,):
         print("TEST failed")
 
 def open_file(file_location):
-    file = open(file_location, 'rb')  # open binary file in read mode
+    file = open(file_location, 'rb')
     file_read = file.read()
     file_64_encode = base64.encodebytes(file_read)
     return file_64_encode
@@ -68,7 +70,6 @@ def setup():
     session.execute("""CREATE TABLE file(
                        file_name text PRIMARY KEY,
                        file blob)""")
-    print("setup completed you can now test by running: python3.8 CassandraFileSystem.py test (amount_of_processes)")
 
 
 def run_test_session(file_name, amount_of_processes):
