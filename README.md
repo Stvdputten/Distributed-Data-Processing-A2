@@ -6,7 +6,8 @@ demonstrates a deployment of Apache Cassandra on a Kubernetes cluster.
 ## Pre-requisites
 - Docker
 - Docker-compose
-- Kubernetes 
+- Kubernetes
+- Cassandra-driver
 - [kOps](https://kops.sigs.k8s.io/getting_started/install/)
 - [kind](https://kind.sigs.k8s.io/) (If you want to test locally)
 
