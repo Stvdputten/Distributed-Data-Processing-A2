@@ -11,10 +11,10 @@ cassandra_ip = "20.76.16.81"
 keyspace_name = "test"
 
 # cluster for remote host
-# cluster = Cluster([cassandra_ip], auth_provider=ap)
+cluster = Cluster([cassandra_ip], auth_provider=ap)
 
 # cluster for localhost
-cluster = Cluster()
+# cluster = Cluster()
 
 
 def insert_file(file_name, file, session):
@@ -43,6 +43,9 @@ def get_file(file_name, session):
 def run_test(file_name,process_name):
     file = open_file(file_name)
     session = cluster.connect(keyspace_name)
+    session.default_timeout = None
+    # session.default_timeout = 80
+    # session.default_timeout
     start = time.perf_counter()
     insert_file(file_name, file, session)
     if(check_file_saved_correctly(file_name, file, session)):
@@ -95,7 +98,7 @@ def save_file(file_name, location_to_be_saved):
 
 
 def print_help():
-    file = open("help.txt")
+    file = open("./application/help.txt")
     lines = file.readlines()
     for line in lines:
         print(line)
