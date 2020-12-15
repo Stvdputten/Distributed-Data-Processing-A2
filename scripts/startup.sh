@@ -1,6 +1,3 @@
 #!/usr/bin/bash
-kubectl apply -f cassandra-service.yaml
-kubectl apply -f local-volumes.yaml
-kubectl apply -f cassandra-statefulset.yaml
-kubectl get pods
-kubectl get services
+kubectl apply -f cassandra-service.yaml -f local-volumes.yaml -f cassandra-statefulset.yaml
+kubectl get all
