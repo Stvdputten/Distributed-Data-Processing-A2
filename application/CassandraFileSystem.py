@@ -30,7 +30,7 @@ def add_file(file_name, file_location):
 
 def check_file_saved_correctly(file_name, file,session):
     retrieved_file = get_file(file_name, session)
-    return retrieved_file == file;
+    return retrieved_file == file
 
 
 def get_file(file_name, session):
@@ -40,11 +40,11 @@ def get_file(file_name, session):
     return rows[0]
 
 
-def run_test(file_name,process_name,):
+def run_test(file_name,process_name):
     file = open_file(file_name)
     session = cluster.connect(keyspace_name)
     start = time.perf_counter()
-    insert_file(file_name, file, session);
+    insert_file(file_name, file, session)
     if(check_file_saved_correctly(file_name, file, session)):
         stop = time.perf_counter()
         time_taken = stop - start
