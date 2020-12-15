@@ -1,4 +1,4 @@
-import base64
+import sys
 import time
 import uuid
 from multiprocessing.context import Process
@@ -6,12 +6,10 @@ from multiprocessing.context import Process
 from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 
-from application.ChunkUtil import separate_file_into_chunks
-
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
 cassandra_ip = "20.76.16.81"
 keyspace_name = "test"
-chunk_size = 10
+chunk_size = 1000000
 # cluster for remote host
 #cluster = Cluster([cassandra_ip], auth_provider=ap)
 
@@ -38,35 +36,31 @@ def check_file_saved_correctly(file_name, file,session):
 
 
 def get_file(file_name, session):
-    strCQL = "SELECT file FROM file WHERE file_name=?;"
+    strCQL = "SELECT * FROM file WHERE file_name=?;"
     pStatement = session.prepare(strCQL)
     rows = session.execute(pStatement, [file_name])
+    chunks = []
     for row in rows:
-        print(row)
-    return rows[0]
+        chunks.append(row[2])
+    file = b''.join(chunks)
+    return file
 
 
-def run_test(file_name,process_name):
-    file = open_file(file_name)
+def run_test(chunks, process_name):
     session = cluster.connect(keyspace_name)
     session.default_timeout = None
-    # session.default_timeout = 80
-    # session.default_timeout
+
     start = time.perf_counter()
-    insert_file(process_name, file, session)
-    if(check_file_saved_correctly(process_name, file, session)):
-        stop = time.perf_counter()
+    insert_file(process_name, chunks, session)
+    output = get_file(process_name,session)
+    stop = time.perf_counter()
+    input = b''.join(chunks)
+    if(input == output):
         time_taken = stop - start
         # print(f"Process {process_name} succesful taken : {time_taken:0.4f} seconds")
         print(time_taken)
     else:
         print("TEST failed")
-
-def open_file(file_location):
-    file = open(file_location, 'rb')
-    file_read = file.read()
-    file_64_encode = base64.encodebytes(file_read)
-    return file_64_encode
 
 
 def setup():
@@ -82,16 +76,21 @@ def setup():
                        file_name text,
                        chunk blob,
                        chunk_number int,
-                       PRIMARY KEY(id))""")
+                       PRIMARY KEY(file_name, id))""")
 
-def run_test_session(file_name, amount_of_processes):
+def run_test_session(file_location, amount_of_processes):
+    setup()
+    print('setup done')
+    chunks = separate_file_into_chunks(file_location, chunk_size)
+    print(f"file is split into {len(chunks)} chunks")
+    print(f"Starting {amount_of_processes} processes")
     for i in range(amount_of_processes):
-        Process(target=run_test, args=(file_name, str(i))).start()
+        Process(target=run_test, args=(chunks, str(i))).start()
 
 
 def list_files():
     session = cluster.connect(keyspace_name)
-    rows = session.execute("SELECT file_name FROM file")
+    rows = session.execute("SELECT DISTINCT file_name FROM file")
     print("Files available for download:")
     for row in rows:
         print(row[0])
@@ -100,9 +99,8 @@ def list_files():
 def save_file(file_name, location_to_be_saved):
     session = cluster.connect(keyspace_name)
     file = get_file(file_name, session)
-    decoded_file = base64.decodebytes(file)
     f = open(location_to_be_saved, "wb")
-    f.write(decoded_file)
+    f.write(file)
     print("Written file at: " + location_to_be_saved)
 
 
@@ -112,29 +110,35 @@ def print_help():
     for line in lines:
         print(line)
 
+def separate_file_into_chunks(file_location,chunk_size):
+    chunks = []
+    with open(file_location, 'rb') as infile:
+        while True:
+            chunk = infile.read(chunk_size)
+            if not chunk:
+                break
+
+            chunks.append(chunk)
+    return chunks
 
 def main():
-    print("Welcome to the DPS assignment 2 application")
-    save_file("test","help.txt")
-    # chunks = separate_file_into_chunks("help.txt",chunk_size)
-
-    # command = sys.argv[1]
-    # if command == "setup":
-    #     setup()
-    # elif command == "test":
-    #     run_test_session(sys.argv[2], int(sys.argv[3]))
-    # elif command == "add_file":
-    #     add_file(sys.argv[2], sys.argv[3])
-    # elif command == "list_files":
-    #     list_files()
-    # elif command == "get_file":
-    #     save_file(sys.argv[2], sys.argv[3])
-    # elif command == "help":
-    #     print_help()
-    # else:
-    #     print("Wrong input")
-    #     print("For help execute:")
-    #     print("python3.8 CassandraFileSystem.py help")
+    command = sys.argv[1]
+    if command == "setup":
+        setup()
+    elif command == "test":
+        run_test_session(sys.argv[2], int(sys.argv[3]))
+    elif command == "add_file":
+        add_file(sys.argv[2], sys.argv[3])
+    elif command == "list_files":
+        list_files()
+    elif command == "get_file":
+        save_file(sys.argv[2], sys.argv[3])
+    elif command == "help":
+        print_help()
+    else:
+        print("Wrong input")
+        print("For help execute:")
+        print("python3.8 CassandraFileSystem.py help")
 
 
 if __name__ == '__main__':
