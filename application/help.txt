@@ -10,7 +10,7 @@ add_file:
     Example:
     python3.8 CassandraFileSystem.py add_file test_image Image.png
 list_files:
-    Will list all the files avaiable for download.
+    Will list all the files available for download.
 get_file:
     Will download a file from the DB accepts two arguments: First the name of the file which needs to be downloaded Second the location where the file needs to be saved.
     Example:
