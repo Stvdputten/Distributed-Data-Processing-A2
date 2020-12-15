@@ -47,8 +47,8 @@ def run_test(file_name,process_name):
     # session.default_timeout = 80
     # session.default_timeout
     start = time.perf_counter()
-    insert_file(file_name, file, session)
-    if(check_file_saved_correctly(file_name, file, session)):
+    insert_file(process_name, file, session)
+    if(check_file_saved_correctly(process_name, file, session)):
         stop = time.perf_counter()
         time_taken = stop - start
         print(f"Process {process_name} succesful taken : {time_taken:0.4f} seconds")
