@@ -5,7 +5,8 @@ metadata:
   name: cassandra
 spec:
   serviceName: cassandra
-  replicas: 1
+#  can be scaled up using kubectl scale --replicas=3 statefulset/cassandra
+  replicas: 3
   selector:
     matchLabels:
       app: cassandra
@@ -16,7 +17,6 @@ spec:
     spec:
       containers:
         - name: cassandra
-#          image: cassandra:3
           image: bitnami/cassandra
           imagePullPolicy: IfNotPresent
           ports:
@@ -33,6 +33,7 @@ spec:
               value: cassandra-0.cassandra.default.svc.cluster.local
             - name: MAX_HEAP_SIZE
               value: 256M
+#              Increased heap size to help with larger files
             - name: HEAP_NEWSIZE
               value: 100M
             - name: CASSANDRA_CLUSTER_NAME
