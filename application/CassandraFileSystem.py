@@ -8,7 +8,7 @@ from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
 # TODO remove hard coded ip
-cassandra_ip = "a58cb486432d64a9abd619859b3b430c-1134284996.us-east-1.elb.amazonaws.com"
+cassandra_ip = "aed129e34eeab4b0d8251f9cc907bee6-983958274.us-east-1.elb.amazonaws.com"
 keyspace_name = "test"
 chunk_size = 1000000
 # cluster for remote host
@@ -36,13 +36,29 @@ def check_file_saved_correctly(file_name, file,session):
     return retrieved_file == file
 
 
-def get_file(file_name, session):
-    strCQL = "SELECT * FROM file WHERE file_name=?;"
+def get_chunk_numbers(file_name, session):
+    strCQL = "SELECT chunk_number FROM file WHERE file_name=? AND chunk_number=0;"
     pStatement = session.prepare(strCQL)
     rows = session.execute(pStatement, [file_name])
-    chunks = []
+    cluster_numbers = []
     for row in rows:
-        chunks.append(row[2])
+        cluster_numbers.append(row[0])
+    return cluster_numbers
+
+
+def get_chunks(file_name, chunk_numbers, session):
+    chunks = []
+    for chunk_number in chunk_numbers:
+        strCQL = "SELECT chunk FROM file WHERE file_name=? AND chunk_number=?;"
+        pStatement = session.prepare(strCQL)
+        row = session.execute(pStatement, [file_name,chunk_number]).one()
+        chunks.append(row[0])
+    return chunks
+
+
+def get_file(file_name, session):
+    chunk_numbers = get_chunk_numbers(file_name, session)
+    chunks = get_chunks(file_name,chunk_numbers, session)
     file = b''.join(chunks)
     return file
 
@@ -77,7 +93,10 @@ def setup():
                        file_name text,
                        chunk blob,
                        chunk_number int,
-                       PRIMARY KEY(file_name, id))""")
+                       PRIMARY KEY((file_name, chunk_number), id)
+                       )""")
+    session.execute("""CREATE INDEX file_name_index
+                            ON file (file_name);""")
 
 def run_test_session(file_location, amount_of_processes):
     setup()
