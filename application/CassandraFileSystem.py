@@ -121,6 +121,14 @@ def separate_file_into_chunks(file_location,chunk_size):
             chunks.append(chunk)
     return chunks
 
+
+def delete_file(file_name):
+    session = cluster.connect(keyspace_name)
+    strCQL = "DELETE FROM file WHERE file_name=?;"
+    pStatement = session.prepare(strCQL)
+    session.execute(pStatement, [file_name])
+
+
 def main():
     command = sys.argv[1]
     if command == "setup":
@@ -133,6 +141,8 @@ def main():
         list_files()
     elif command == "get_file":
         save_file(sys.argv[2], sys.argv[3])
+    elif command == "delete_file":
+        delete_file(sys.argv[2])
     elif command == "help":
         print_help()
     else:
