@@ -7,6 +7,7 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
+# TODO remove hard coded ip
 cassandra_ip = "a58cb486432d64a9abd619859b3b430c-1134284996.us-east-1.elb.amazonaws.com"
 keyspace_name = "test"
 chunk_size = 1000000
