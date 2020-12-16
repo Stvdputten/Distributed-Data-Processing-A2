@@ -37,13 +37,14 @@ def check_file_saved_correctly(file_name, file,session):
 
 
 def get_chunk_numbers(file_name, session):
-    strCQL = "SELECT chunk_number FROM file WHERE file_name=? AND chunk_number=0;"
+    strCQL = "SELECT chunk_number FROM file WHERE file_name=?;"
     pStatement = session.prepare(strCQL)
     rows = session.execute(pStatement, [file_name])
-    cluster_numbers = []
+    chunk_numbers = []
     for row in rows:
-        cluster_numbers.append(row[0])
-    return cluster_numbers
+        chunk_numbers.append(row[0])
+    chunk_numbers.sort()
+    return chunk_numbers
 
 
 def get_chunks(file_name, chunk_numbers, session):
