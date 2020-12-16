@@ -7,7 +7,8 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
-cassandra_ip = "20.76.16.81"
+# TODO remove hard coded ip
+cassandra_ip = "34.91.106.40"
 keyspace_name = "test"
 chunk_size = 1000000
 # cluster for remote host
@@ -62,6 +63,12 @@ def run_test(chunks, process_name):
     else:
         print("TEST failed")
 
+
+def open_file(file_location):
+    file = open(file_location, 'rb')
+    file_read = file.read()
+    file_64_encode = base64.encodebytes(file_read)
+    return file_64_encode
 
 def setup():
     session = cluster.connect()
