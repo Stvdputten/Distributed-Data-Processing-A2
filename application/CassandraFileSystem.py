@@ -7,14 +7,14 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
-cassandra_ip = "20.76.16.81"
+cassandra_ip = "a58cb486432d64a9abd619859b3b430c-1134284996.us-east-1.elb.amazonaws.com"
 keyspace_name = "test"
 chunk_size = 1000000
 # cluster for remote host
-#cluster = Cluster([cassandra_ip], auth_provider=ap)
+cluster = Cluster([cassandra_ip], auth_provider=ap)
 
 # cluster for localhost
-cluster = Cluster()
+#cluster = Cluster()
 
 
 def insert_file(file_name, chunks, session):
