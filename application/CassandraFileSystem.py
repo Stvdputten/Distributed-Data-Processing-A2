@@ -133,16 +133,19 @@ def main():
     command = sys.argv[1]
     if command == "setup":
         setup()
+        print("Setup completed")
     elif command == "test":
         run_test_session(sys.argv[2], int(sys.argv[3]))
     elif command == "add_file":
         add_file(sys.argv[2], sys.argv[3])
+        print(f"File {sys.argv[2]} added")
     elif command == "list_files":
         list_files()
     elif command == "get_file":
         save_file(sys.argv[2], sys.argv[3])
     elif command == "delete_file":
         delete_file(sys.argv[2])
+        print(f"File {sys.argv[2]} deleted")
     elif command == "help":
         print_help()
     else:
