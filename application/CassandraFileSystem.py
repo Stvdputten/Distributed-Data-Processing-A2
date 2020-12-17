@@ -1,3 +1,5 @@
+import multiprocessing
+import statistics
 import sys
 import time
 import uuid
@@ -8,7 +10,7 @@ from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
 # TODO remove hard coded ip
-cassandra_ip = "a7151565950a947d68895f44813c38f1-1098771226.us-east-1.elb.amazonaws.com"
+cassandra_ip = "a2958828359c64a6e928e6150007e23e-547318580.us-east-1.elb.amazonaws.com"
 keyspace_name = "test"
 chunk_size = 1000000
 # cluster for remote host
@@ -64,10 +66,8 @@ def get_file(file_name, session):
     return file
 
 
-def run_test(chunks, process_name):
-    print(f"Creating session {process_name}")
+def run_test(chunks, process_name, return_dict):
     session = cluster.connect(keyspace_name)
-    print(f"Session created {process_name}")
     session.default_timeout = None
 
     start = time.perf_counter()
@@ -78,7 +78,7 @@ def run_test(chunks, process_name):
     if(input == output):
         time_taken = stop - start
         # print(f"Process {process_name} succesful taken : {time_taken:0.4f} seconds")
-        print(time_taken)
+        return_dict[process_name] = time_taken
     else:
         print("TEST failed")
 
@@ -105,10 +105,33 @@ def run_test_session(file_location, amount_of_processes):
     chunks = separate_file_into_chunks(file_location, chunk_size)
     print(f"file is split into {len(chunks)} chunks")
     print(f"Starting {amount_of_processes} processes")
+    manager = multiprocessing.Manager()
+    return_dict = manager.dict()
+    all_processes = []
     for i in range(amount_of_processes):
-        Process(target=run_test, args=(chunks, str(i))).start()
+        all_processes.append(Process(target=run_test, args=(chunks, str(i),return_dict)))
+    for p in all_processes:
+        p.start()
 
+    for p in all_processes:
+        p.join()
+    print("Processes done")
+    median_session = statistics.median(list(return_dict.values()))
+    print(median_session)
+    return median_session
 
+def run_test_cycle(file_location, amount_of_processes, cycles):
+    results = []
+    for i in range(cycles):
+        print(f"RUNNING cycle: {i}")
+        results.append(run_test_session(file_location,amount_of_processes))
+
+    print("RESULTS")
+    for result in results:
+        print(result)
+    median = statistics.median(results)
+
+    print(f"Median of {cycles} cycles is {median}")
 def list_files():
     session = cluster.connect(keyspace_name)
     rows = session.execute("SELECT DISTINCT file_name FROM file")
@@ -157,7 +180,7 @@ def main():
         setup()
         print("Setup completed")
     elif command == "test":
-        run_test_session(sys.argv[2], int(sys.argv[3]))
+        run_test_cycle(sys.argv[2], int(sys.argv[3]), int(sys.argv[4]))
     elif command == "add_file":
         add_file(sys.argv[2], sys.argv[3])
         print(f"File {sys.argv[2]} added")
