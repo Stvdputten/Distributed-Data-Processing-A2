@@ -8,7 +8,7 @@ from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
 # TODO remove hard coded ip
-cassandra_ip = "aed129e34eeab4b0d8251f9cc907bee6-983958274.us-east-1.elb.amazonaws.com"
+cassandra_ip = "a7151565950a947d68895f44813c38f1-1098771226.us-east-1.elb.amazonaws.com"
 keyspace_name = "test"
 chunk_size = 1000000
 # cluster for remote host
@@ -65,7 +65,9 @@ def get_file(file_name, session):
 
 
 def run_test(chunks, process_name):
+    print(f"Creating session {process_name}")
     session = cluster.connect(keyspace_name)
+    print(f"Session created {process_name}")
     session.default_timeout = None
 
     start = time.perf_counter()
@@ -94,10 +96,8 @@ def setup():
                        file_name text,
                        chunk blob,
                        chunk_number int,
-                       PRIMARY KEY((file_name, chunk_number), id)
+                       PRIMARY KEY(file_name, chunk_number, id)
                        )""")
-    session.execute("""CREATE INDEX file_name_index
-                            ON file (file_name);""")
 
 def run_test_session(file_location, amount_of_processes):
     setup()
@@ -152,6 +152,7 @@ def delete_file(file_name):
 
 def main():
     command = sys.argv[1]
+
     if command == "setup":
         setup()
         print("Setup completed")
