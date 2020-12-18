@@ -34,21 +34,24 @@ cd Distributed\ Data\ Processing\ A2
 ./scripts/startup.sh
 ```
 ## Run Application
+First step is to open the CassandraFileSystem.py and set the cassandra_ip to the external ip, and replace the username and password if they are not the default ones.
+
+For a list of supported command an their function execute:
+```
+python application/CassandraFileSystem.py help
 
 ```
-python application/CassandraFileSystem.py help # for more information or see help.txt
-
-```
-
+or read the help.txt.
 ## Run experiments
 Experiments can be run if the system is online and has a public external ip to which you can connect using cqlsh from Cassandra.
-Might require an update in the code of the external ip.
 
 ```
 python application/CassandraFileSystem.py setup
-python application/CassandraFileSystem.py test [datasets] [concurrent sessions]
+python application/CassandraFileSystem.py test [datasets] [concurrent sessions] [amount of cycles]
 # example python application/CassandraFileSystem.py test datasets/1MB.epub/ 1
 ```
+
+
 
 
 ## Acknowledgements
