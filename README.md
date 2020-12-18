@@ -7,7 +7,8 @@ demonstrates a deployment of Apache Cassandra on a Kubernetes cluster.
 - Docker
 - Docker-compose
 - Kubernetes
-- Cassandra-driver
+- Python 3.8
+- [Cassandra-driver](https://pypi.org/project/cassandra-driver/)
 - [kOps](https://kops.sigs.k8s.io/getting_started/install/)
 - [kind](https://kind.sigs.k8s.io/) (If you want to test locally)
 
