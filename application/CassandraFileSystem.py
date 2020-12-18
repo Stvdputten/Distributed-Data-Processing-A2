@@ -9,22 +9,20 @@ from cassandra.auth import PlainTextAuthProvider
 from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
-# TODO remove hard coded ip
-cassandra_ip = "a02e15aff822e42ceafd6f89dbb20db9-2082315426.us-east-1.elb.amazonaws.com"
+# Place ip of cluster here
+cassandra_ip = ""
 keyspace_name = "test"
 chunk_size = 1000000
+
 # cluster for remote host
 cluster = Cluster([cassandra_ip], auth_provider=ap)
-
-# cluster for localhost
-#cluster = Cluster()
 
 
 def insert_file(file_name, chunks, session):
     for i in range(len(chunks)):
         strCQL = "INSERT INTO file (id, file_name, chunk, chunk_number ) VALUES (?,?,?,?)"
         pStatement = session.prepare(strCQL)
-        session.execute(pStatement, [uuid.uuid1(),file_name, chunks[i], i])
+        session.execute(pStatement, [uuid.uuid1(), file_name, chunks[i], i])
 
 
 def add_file(file_name, file_location):
@@ -33,7 +31,7 @@ def add_file(file_name, file_location):
     insert_file(file_name, chunks, session)
 
 
-def check_file_saved_correctly(file_name, file,session):
+def check_file_saved_correctly(file_name, file, session):
     retrieved_file = get_file(file_name, session)
     return retrieved_file == file
 
@@ -54,14 +52,14 @@ def get_chunks(file_name, chunk_numbers, session):
     for chunk_number in chunk_numbers:
         strCQL = "SELECT chunk FROM file WHERE file_name=? AND chunk_number=?;"
         pStatement = session.prepare(strCQL)
-        row = session.execute(pStatement, [file_name,chunk_number]).one()
+        row = session.execute(pStatement, [file_name, chunk_number]).one()
         chunks.append(row[0])
     return chunks
 
 
 def get_file(file_name, session):
     chunk_numbers = get_chunk_numbers(file_name, session)
-    chunks = get_chunks(file_name,chunk_numbers, session)
+    chunks = get_chunks(file_name, chunk_numbers, session)
     file = b''.join(chunks)
     return file
 
@@ -72,12 +70,11 @@ def run_test(chunks, process_name, return_dict):
 
     start = time.perf_counter()
     insert_file(process_name, chunks, session)
-    output = get_file(process_name,session)
+    output = get_file(process_name, session)
     stop = time.perf_counter()
     input = b''.join(chunks)
-    if(input == output):
+    if input == output:
         time_taken = stop - start
-        # print(f"Process {process_name} succesful taken : {time_taken:0.4f} seconds")
         return_dict[process_name] = time_taken
     else:
         print("TEST failed")
@@ -99,6 +96,7 @@ def setup():
                        PRIMARY KEY(file_name, chunk_number, id)
                        )""")
 
+
 def run_test_session(file_location, amount_of_processes):
     setup()
     print('setup done')
@@ -109,7 +107,7 @@ def run_test_session(file_location, amount_of_processes):
     return_dict = manager.dict()
     all_processes = []
     for i in range(amount_of_processes):
-        all_processes.append(Process(target=run_test, args=(chunks, str(i),return_dict)))
+        all_processes.append(Process(target=run_test, args=(chunks, str(i), return_dict)))
     for p in all_processes:
         p.start()
 
@@ -120,11 +118,12 @@ def run_test_session(file_location, amount_of_processes):
     print(median_session)
     return median_session
 
+
 def run_test_cycle(file_location, amount_of_processes, cycles):
     results = []
     for i in range(cycles):
         print(f"RUNNING cycle: {i}")
-        results.append(run_test_session(file_location,amount_of_processes))
+        results.append(run_test_session(file_location, amount_of_processes))
 
     print("RESULTS")
     for result in results:
@@ -132,6 +131,8 @@ def run_test_cycle(file_location, amount_of_processes, cycles):
     median = statistics.median(results)
 
     print(f"Median of {cycles} cycles is {median}")
+
+
 def list_files():
     session = cluster.connect(keyspace_name)
     rows = session.execute("SELECT DISTINCT file_name FROM file")
@@ -154,7 +155,8 @@ def print_help():
     for line in lines:
         print(line)
 
-def separate_file_into_chunks(file_location,chunk_size):
+
+def separate_file_into_chunks(file_location, chunk_size):
     chunks = []
     with open(file_location, 'rb') as infile:
         while True:
