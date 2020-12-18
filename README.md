@@ -20,6 +20,7 @@ git clone https://github.com/Stvdputten/Distributed-Data-Processing-Systems-A1.g
 ```
 
 **1.5. Cloud Setup (optional)** 
+
 Can be skipped if you already have a Kubernetes cluster setup on a cloud provider or locally. Requires at least 4 nodes.
 Furthermore update the location of your s3:// bucket.
 
@@ -28,6 +29,7 @@ scripts/cloud_setup.sh # Uses kOps and AWS
 ```
 
 **2. Deployment** 
+
 Deploys the the Cassandra cluster.
 
 ```
