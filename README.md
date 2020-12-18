@@ -58,12 +58,24 @@ or read the help.txt.
 Experiments can be run if the system is online and has a public external ip to which you can connect using cqlsh from Cassandra.
 Might require an update in the code of the external ip.
 
+** Performance
+Writes and reads to our database storage system.
 ```
 python application/CassandraFileSystem.py setup
 python application/CassandraFileSystem.py test [datasets] [concurrent sessions] [amount of cycles]
 # example python application/CassandraFileSystem.py test datasets/1MB.epub/ 1
 ```
 
+** Availability
+Drops a node you can check afterwards if the system is still running.
+```
+# drop node
+kubectl delete pod/cassandra-0 --grace-period=0 --force 
+
+# check if files are still available
+python application/CassandraFileSystem.py list_files
+
+```
 
 ## Acknowledgements
 
