@@ -40,14 +40,15 @@ python application/CassandraFileSystem.py help # for more information or see hel
 
 ```
 
-## Run experiments
+## Run Experiments
 Experiments can be run if the system is online and has a public external ip to which you can connect using cqlsh from Cassandra.
 Might require an update in the code of the external ip.
 
 ```
 python application/CassandraFileSystem.py setup
-python application/CassandraFileSystem.py test [datasets] [concurrent sessions]
-# example python application/CassandraFileSystem.py test datasets/1MB.epub/ 1
+
+# example python application/CassandraFileSystem.py test [datasets] [concurrent sessions]
+python application/CassandraFileSystem.py test datasets/1MB.epub/ 1
 ```
 
 
