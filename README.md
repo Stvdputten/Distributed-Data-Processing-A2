@@ -38,6 +38,7 @@ cd Distributed\ Data\ Processing\ A2
 ```
 
 **2.5 Shutdown (optional)** 
+
 Shutdown of application.
 
 ```
@@ -52,6 +53,7 @@ python application/CassandraFileSystem.py help # for more information or see hel
 ```
 
 ## Run Experiments
+
 Experiments can be run if the system is online and has a public external ip to which you can connect using cqlsh from Cassandra.
 Might require an update in the code of the external ip.
 
