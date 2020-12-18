@@ -2,16 +2,23 @@ The following commands are supported:
 setup:
     Will initialise the DB and create the table NOTE this will delete all data
 test:
-    Used to run test accepts two arguments: first the file which will be uploaded second the amount of processes will be run in parallel
+    Used to run test accepts three arguments:
+        1 the file which will be uploaded
+        2 the amount of processes will be run in parallel
+        3 the amount of times this process will be repeated
     Example:
-    python3.8 CassandraFileSystem.py test Image.png 3
+    python3.8 CassandraFileSystem.py test Image.png 3 10
 add_file:
-    Will add a file to the DB accepts two arguments: First the file name to be used in the DB second the path of the file
+    Will add a file to the DB accepts two arguments:
+        1 the file name to be used in the DB
+        2 the path of the file to be uploaded
     Example:
     python3.8 CassandraFileSystem.py add_file test_image Image.png
 list_files:
     Will list all the files available for download.
 get_file:
-    Will download a file from the DB accepts two arguments: First the name of the file which needs to be downloaded Second the location where the file needs to be saved.
+    Will download a file from the DB accepts two arguments:
+        1 the name of the file which needs to be downloaded
+        2 the location where the file needs to be saved.
     Example:
     python3.8 CassandraFileSystem.py get_file test_image Image.png
