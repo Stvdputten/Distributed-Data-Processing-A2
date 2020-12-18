@@ -33,6 +33,14 @@ Deploys the the Cassandra cluster.
 cd Distributed\ Data\ Processing\ A2
 ./scripts/startup.sh
 ```
+
+**2.5 Shutdown (optional)** 
+Shutdown of application.
+
+```
+./scripts/shutdown.sh
+```
+
 ## Run Application
 
 ```
