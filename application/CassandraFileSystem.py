@@ -10,7 +10,7 @@ from cassandra.cluster import Cluster
 
 ap = PlainTextAuthProvider(username='cassandra', password='cassandra')
 # TODO remove hard coded ip
-cassandra_ip = "a2958828359c64a6e928e6150007e23e-547318580.us-east-1.elb.amazonaws.com"
+cassandra_ip = "a02e15aff822e42ceafd6f89dbb20db9-2082315426.us-east-1.elb.amazonaws.com"
 keyspace_name = "test"
 chunk_size = 1000000
 # cluster for remote host
@@ -88,7 +88,7 @@ def setup():
     session.execute("DROP KEYSPACE IF EXISTS %s;" % keyspace_name)
     session.execute("""
         CREATE KEYSPACE %s
-        WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '2' }
+        WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': '1' }
         """ % keyspace_name)
     session.execute("USE %s" % keyspace_name)
     session.execute("""CREATE TABLE file(
